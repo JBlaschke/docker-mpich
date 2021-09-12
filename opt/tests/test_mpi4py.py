@@ -6,7 +6,7 @@
 import sys
 import pickle
 
-from .util import Timer
+from util import Timer
 
 
 #_______________________________________________________________________________
