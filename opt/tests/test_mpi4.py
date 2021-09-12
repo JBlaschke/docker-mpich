@@ -25,6 +25,12 @@ if "gather" in sys.argv:
 #-------------------------------------------------------------------------------
 
 
+def fn_payload(i):
+    return 0.5*i
+
+n_payload = 100
+
+
 #_______________________________________________________________________________
 # Time MPI initialization
 #
@@ -46,7 +52,7 @@ duration_init = t.total()
 #
 
 if mpi_rank == 0:
-    payload = [0.5*i for i in range(100)]
+    payload = [fn_payload(i) for i in range(n_payload)]
 else:
     payload = None
 
@@ -62,7 +68,7 @@ duration_bcast = t.total()
 # validate results
 if test_bcast:
     if mpi_rank != 0:
-        assert payload == 1.2
+        assert all(p == fn_payload(i) for i, p in enumerate(payload))
 
 #-------------------------------------------------------------------------------
 
@@ -71,7 +77,7 @@ if test_bcast:
 # Time MPI Gather
 #
 
-payload = 1.2
+payload = [fn_payload(i) for i in range(n_payload)]
 
 comm.Barrier()
 
@@ -86,7 +92,9 @@ duration_gather = t.total()
 if test_gather:
     if mpi_rank == 0:
         for i in range(mpi_size):
-            assert all_payloads[i] == payload
+            assert all(
+                p == fn_payload(j) for j, p in enumerate(all_payloads[i])
+            )
 
 #-------------------------------------------------------------------------------
 
